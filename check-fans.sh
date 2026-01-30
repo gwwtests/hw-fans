@@ -1,6 +1,6 @@
 #!/bin/bash
 # ThinkPad Fan & Temperature Monitor
-# Usage: ./check-fans.sh [-w|--watch] [-s|--simple] [-h|--help]
+# Usage: ./check-fans.sh [-w|--watch] [-c|--clear] [-s|--simple] [-h|--help]
 
 set -euo pipefail
 
@@ -122,7 +122,7 @@ show_simple() {
 }
 
 show_all() {
-    clear
+    $CLEAR && clear
     show_header
     show_fan_status
     show_cpu_temps
@@ -137,7 +137,9 @@ show_help() {
     echo "Usage: $0 [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  -w, --watch     Continuous monitoring (updates every 2s)"
+    echo "  -w, --watch     Continuous monitoring (updates every 2s, implies --clear)"
+    echo "  -c, --clear     Clear screen before output"
+    echo "      --no-clear  Don't clear screen (overrides --watch default)"
     echo "  -s, --simple    One-line simple output"
     echo "  -h, --help      Show this help"
     echo ""
@@ -150,11 +152,21 @@ show_help() {
 # Parse arguments
 WATCH=false
 SIMPLE=false
+CLEAR=false
+NO_CLEAR=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         -w|--watch)
             WATCH=true
+            shift
+            ;;
+        -c|--clear)
+            CLEAR=true
+            shift
+            ;;
+        --no-clear)
+            NO_CLEAR=true
             shift
             ;;
         -s|--simple)
@@ -172,6 +184,11 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Watch mode implies clear unless --no-clear
+if $WATCH && ! $NO_CLEAR; then
+    CLEAR=true
+fi
 
 # Main
 if $SIMPLE; then

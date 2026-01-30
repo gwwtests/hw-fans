@@ -398,9 +398,10 @@ def show_legend():
     console.print(legend)
 
 
-def show_all(top_n: int = 5):
+def show_all(top_n: int = 5, clear: bool = False):
     """Display all diagnostics."""
-    console.clear()
+    if clear:
+        console.clear()
 
     from datetime import datetime
     title = f"[bold cyan]ThinkPad Hardware Diagnostics[/] [dim]{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/]"
@@ -418,10 +419,15 @@ def show_all(top_n: int = 5):
 
 def main():
     parser = argparse.ArgumentParser(description="ThinkPad Hardware Diagnostics")
-    parser.add_argument("-w", "--watch", action="store_true", help="Continuous monitoring (updates every 3s)")
+    parser.add_argument("-w", "--watch", action="store_true", help="Continuous monitoring (updates every 3s, implies --clear)")
+    parser.add_argument("-c", "--clear", action="store_true", help="Clear screen before output")
+    parser.add_argument("--no-clear", action="store_true", help="Don't clear screen (overrides --watch default)")
     parser.add_argument("-n", "--num", type=int, default=5, help="Show top N processes (default: 5)")
     parser.add_argument("-s", "--simple", action="store_true", help="Simple one-line output")
     args = parser.parse_args()
+
+    # Watch mode implies clear unless --no-clear
+    do_clear = args.clear or (args.watch and not args.no_clear)
 
     if args.simple:
         fan = get_fan_info()
@@ -438,13 +444,13 @@ def main():
     if args.watch:
         try:
             while True:
-                show_all(args.num)
+                show_all(args.num, clear=do_clear)
                 console.print("\n[cyan]Refreshing every 3s. Press Ctrl+C to exit[/]")
                 time.sleep(3)
         except KeyboardInterrupt:
             console.print("\n[dim]Exiting...[/]")
     else:
-        show_all(args.num)
+        show_all(args.num, clear=do_clear)
 
 
 if __name__ == "__main__":

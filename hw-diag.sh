@@ -1,7 +1,7 @@
 #!/bin/bash
 # ThinkPad Hardware Diagnostics - Extended View
 # Shows fans, temps, and top CPU/GPU consumers
-# Usage: ./hw-diag.sh [-w|--watch] [-n NUM] [-h|--help]
+# Usage: ./hw-diag.sh [-w|--watch] [-c|--clear] [-n NUM] [-h|--help]
 
 set -euo pipefail
 
@@ -286,7 +286,7 @@ show_legend() {
 }
 
 show_all() {
-    clear
+    $CLEAR && clear
     show_header
     show_system_overview
     show_fan_status
@@ -305,7 +305,9 @@ show_help() {
     echo "Usage: $0 [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  -w, --watch      Continuous monitoring (updates every 3s)"
+    echo "  -w, --watch      Continuous monitoring (updates every 3s, implies --clear)"
+    echo "  -c, --clear      Clear screen before output"
+    echo "      --no-clear   Don't clear screen (overrides --watch default)"
     echo "  -n, --num NUM    Show top N processes (default: 5)"
     echo "  -i, --io         Include disk I/O stats"
     echo "  -h, --help       Show this help"
@@ -324,12 +326,22 @@ show_help() {
 
 # Parse arguments
 WATCH=false
+CLEAR=false
+NO_CLEAR=false
 SHOW_IO=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         -w|--watch)
             WATCH=true
+            shift
+            ;;
+        -c|--clear)
+            CLEAR=true
+            shift
+            ;;
+        --no-clear)
+            NO_CLEAR=true
             shift
             ;;
         -n|--num)
@@ -351,6 +363,11 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Watch mode implies clear unless --no-clear
+if $WATCH && ! $NO_CLEAR; then
+    CLEAR=true
+fi
 
 # Main
 if $WATCH; then
