@@ -1,53 +1,8 @@
 # hw-fans
 
-ThinkPad fan monitoring and hardware diagnostics scripts for Linux.
+Small handy scripts I use for fan monitoring and hardware diagnostics on Linux. Sharing in case they're useful to others.
 
-## Scripts
-
-| Script | Description | Language |
-|--------|-------------|----------|
-| `check-fans.sh` | Quick fan & temperature monitor | Bash |
-| `hw-diag.sh` | Extended hardware diagnostics | Bash |
-| `hw-diag.py` | Full diagnostics with rich UI | Python (uv) |
-
-## Requirements
-
-* Linux with `lm-sensors` installed
-* ThinkPad with `/proc/acpi/ibm/fan` (for fan control)
-* Python 3.10+ and [uv](https://github.com/astral-sh/uv) for `hw-diag.py`
-
-## Usage
-
-```bash
-# Quick fan check
-./check-fans.sh
-
-# Simple one-liner (for status bars, tmux, etc.)
-./check-fans.sh -s
-
-# Watch mode (auto-refresh every 2s)
-./check-fans.sh -w
-
-# Extended diagnostics
-./hw-diag.sh
-
-# Python version with rich UI
-./hw-diag.py
-
-# Show top 10 processes
-./hw-diag.py -n 10
-```
-
-### Options
-
-```
--w, --watch     Continuous monitoring (implies --clear)
--c, --clear     Clear screen before output
-    --no-clear  Don't clear screen (overrides --watch default)
--s, --simple    One-line simple output
--n, --num NUM   Show top N processes (default: 5)
--h, --help      Show help
-```
+**If you need updates to support your setup, feel free to open a PR or GitHub issue!**
 
 ## Example Output
 
@@ -139,6 +94,52 @@ Legend: < 75°C | 75-90°C | > 90°C
 Temps: <75° 75-90° >90°  | CPU: <20% 20-50% >50%
 ```
 
+## Scripts
+
+| Script | Description | Language |
+|--------|-------------|----------|
+| `check-fans.sh` | Quick fan & temperature monitor | Bash |
+| `hw-diag.sh` | Extended hardware diagnostics | Bash |
+| `hw-diag.py` | Full diagnostics with rich UI | Python (uv) |
+
+## Requirements
+
+* Linux with `lm-sensors` installed
+* Python 3.10+ and [uv](https://github.com/astral-sh/uv) for `hw-diag.py`
+
+## Usage
+
+```bash
+# Quick fan check
+./check-fans.sh
+
+# Simple one-liner (for status bars, tmux, etc.)
+./check-fans.sh -s
+
+# Watch mode (auto-refresh every 2s)
+./check-fans.sh -w
+
+# Extended diagnostics
+./hw-diag.sh
+
+# Python version with rich UI
+./hw-diag.py
+
+# Show top 10 processes
+./hw-diag.py -n 10
+```
+
+### Options
+
+```
+-w, --watch     Continuous monitoring (implies --clear)
+-c, --clear     Clear screen before output
+    --no-clear  Don't clear screen (overrides --watch default)
+-s, --simple    One-line simple output
+-n, --num NUM   Show top N processes (default: 5)
+-h, --help      Show help
+```
+
 ## Manual Fan Control
 
 ```bash
@@ -148,6 +149,23 @@ echo level full-speed | sudo tee /proc/acpi/ibm/fan
 # Return to auto
 echo level auto | sudo tee /proc/acpi/ibm/fan
 ```
+
+## Compatibility
+
+These scripts were developed on a ThinkPad and use ThinkPad-specific paths for some features:
+
+* **Fan control**: `/proc/acpi/ibm/fan` (requires `thinkpad_acpi` kernel module)
+* **Fan status/level**: ThinkPad ACPI interface
+
+However, most functionality should work on other Linux systems:
+
+* **Temperature readings**: Uses `lm-sensors` which works on most hardware
+* **CPU/GPU frequencies**: Reads from standard `/sys/` paths
+* **Process monitoring**: Uses `psutil` (Python) or `ps` (Bash) - universal
+
+**The scripts gracefully fall back** when ThinkPad-specific interfaces aren't available - you'll still get temperatures and process info, just without fan control.
+
+If you're on a different system and want to add support for your hardware's fan interface, PRs are welcome!
 
 ## License
 
